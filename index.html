@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1478d4">
+<title>Bon de reprise — EuroMed</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="hub-btn" href="https://hawaryou.github.io/HUB-euromed/" aria-label="Retour au HUB EuroMed">⌂ <span>Menu</span></a>
+  <div class="brand">
+    <div class="logo-text">EURO<span>MED</span></div>
+    <div class="subtitle">Matériel médical</div>
+  </div>
+  <div class="doc-badge">BON DE REPRISE</div>
+</header>
+
+<main class="container">
+  <section class="hero card">
+    <div>
+      <span class="eyebrow">DOCUMENT DE TRAÇABILITÉ</span>
+      <h1>Bon de reprise</h1>
+      <p>Reprise de matériel par un technicien EuroMed.</p>
+    </div>
+    <div class="meta">
+      <label>N° du bon<input id="bonNumero" readonly></label>
+      <label>Date<input id="dateBon" type="date"></label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span>01</span> Patient / client</h2>
+    <div class="grid two">
+      <label>Nom<input id="nom" autocomplete="family-name" required></label>
+      <label>Prénom<input id="prenom" autocomplete="given-name"></label>
+      <label>Téléphone<input id="telephone" type="tel" inputmode="tel"></label>
+      <label>Établissement / service<input id="etablissement"></label>
+    </div>
+    <label>Adresse<textarea id="adresse" rows="2"></textarea></label>
+  </section>
+
+  <section class="card">
+    <div class="section-title">
+      <h2><span>02</span> Matériel repris</h2>
+      <button class="btn primary small" type="button" id="addMaterial">＋ Ajouter un matériel</button>
+    </div>
+    <div id="materials"></div>
+  </section>
+
+  <section class="card">
+    <h2><span>03</span> Motif de reprise</h2>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="motif" value="Fin de location">Fin de location</label>
+      <label class="chip"><input type="radio" name="motif" value="Échange de matériel">Échange</label>
+      <label class="chip"><input type="radio" name="motif" value="SAV / réparation">SAV / réparation</label>
+      <label class="chip"><input type="radio" name="motif" value="Décès">Décès</label>
+      <label class="chip"><input type="radio" name="motif" value="Changement de matériel">Changement</label>
+      <label class="chip"><input type="radio" name="motif" value="Matériel non adapté">Non adapté</label>
+      <label class="chip"><input type="radio" name="motif" value="Autre">Autre</label>
+    </div>
+    <label id="motifAutreWrap" class="hidden">Précisez<input id="motifAutre"></label>
+  </section>
+
+  <section class="card">
+    <h2><span>04</span> Observations</h2>
+    <textarea id="observations" rows="5" placeholder="Accessoires repris, pièces manquantes, état particulier, remarques..."></textarea>
+  </section>
+
+  <section class="card">
+    <h2><span>05</span> Anomalie / état du matériel</h2>
+    <label class="switchline"><input type="checkbox" id="anomalie"><span class="switch"></span><strong>Matériel endommagé ou anomalie constatée</strong></label>
+    <div id="photosArea" class="photo-area hidden">
+      <p>Ajoutez des photos pour documenter l'état du matériel.</p>
+      <input id="photos" type="file" accept="image/*" capture="environment" multiple>
+      <div id="photoPreview" class="photo-preview"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span>06</span> Signatures</h2>
+    <p class="hint">Le patient / représentant et le technicien signent directement sur l'écran.</p>
+    <div class="sign-grid">
+      <div class="signature-box">
+        <div class="sig-head"><strong>Patient / représentant</strong><button type="button" class="clearSig" data-target="sigPatient">Effacer</button></div>
+        <canvas id="sigPatient" class="signature"></canvas>
+      </div>
+      <div class="signature-box">
+        <div class="sig-head"><strong>Technicien EuroMed</strong><button type="button" class="clearSig" data-target="sigTechnicien">Effacer</button></div>
+        <canvas id="sigTechnicien" class="signature"></canvas>
+      </div>
+    </div>
+    <div class="attestation">
+      <label class="checkline"><input type="checkbox" id="attestation"> <span>Je reconnais avoir remis / repris le matériel indiqué ci-dessus et avoir pris connaissance des observations mentionnées.</span></label>
+    </div>
+  </section>
+
+  <section class="actions card">
+    <button class="btn secondary" type="button" id="previewBtn">Aperçu / Imprimer</button>
+    <button class="btn primary big" type="button" id="validateBtn">✓ Valider la reprise</button>
+    <button class="btn outline" type="button" id="resetBtn">Nouveau bon</button>
+  </section>
+
+  <section id="status" class="status hidden"></section>
+</main>
+
+<footer>EuroMed — 117 rue de Maubeuge F-59620 Aulnoye-Aymeries · +33.327.64.34.99 · www.euromed-materiel-medical.com</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
