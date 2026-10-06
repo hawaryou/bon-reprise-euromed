@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 150">
+<defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#1769aa"/><stop offset="1" stop-color="#16a0df"/></linearGradient></defs>
+<rect width="500" height="150" rx="32" fill="white"/>
+<text x="35" y="98" font-family="Arial,Helvetica,sans-serif" font-size="82" font-weight="800" fill="url(#g)">euromed</text>
+<circle cx="441" cy="49" r="15" fill="#22a06b"/>
+<path d="M434 49l5 5 10-12" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
