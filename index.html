@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c5b9b">
+<title>Bon de reprise — EuroMed</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
+<body>
+<a class="menu-btn" href="https://hawaryou.github.io/HUB-euromed/">☰ <span>Menu</span></a>
+
+<main class="page">
+<header class="top">
+  <div class="logo-wrap"><img src="assets/logo.svg" class="logo" alt="EuroMed"></div>
+  <div class="title-wrap">
+    <h1>BON DE REPRISE</h1>
+    <p>Document de reprise — EuroMed</p>
+  </div>
+  <div class="date-box">
+    <label>Date<input id="bonDate" type="date"></label>
+    <label>N° du bon<input id="bonNumber" readonly></label>
+  </div>
+</header>
+
+<div class="company-line">
+  <span>+33.327.64.34.99</span>
+  <span>www.euromed-materiel-medical.com</span>
+  <span>117 rue de Maubeuge F-59620 Aulnoye-Aymeries</span>
+</div>
+
+<section class="paper-card">
+  <div class="section-head">PATIENT / CLIENT</div>
+  <div class="grid">
+    <label>Nom<input id="patientNom" placeholder="Nom"></label>
+    <label>Prénom<input id="patientPrenom" placeholder="Prénom"></label>
+    <label class="wide">Adresse<input id="patientAdresse" placeholder="Adresse complète"></label>
+    <label>Téléphone<input id="patientTel" type="tel" placeholder="Téléphone"></label>
+    <label>Établissement / service<input id="patientEtab" placeholder="Facultatif"></label>
+    <label class="wide">E-mail<input id="patientEmail" type="email" placeholder="Facultatif — pour recevoir le bon"></label>
+  </div>
+</section>
+
+<section class="paper-card">
+  <div class="section-head">MATÉRIEL REPRIS</div>
+  <p class="hint">Indiquez chaque matériel repris et son numéro de série ou de lot.</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Nom</th><th>Qté</th><th>Dénomination du matériel repris</th><th>N° de série / lot</th><th>État</th><th></th></tr></thead>
+      <tbody id="materials"></tbody>
+    </table>
+  </div>
+  <button id="addMaterial" class="add">＋ Ajouter une ligne</button>
+</section>
+
+<section class="paper-card">
+  <div class="section-head">REPRISE</div>
+  <div class="checks">
+    <label><input type="radio" name="motif" value="Fin de location"> Fin de location</label>
+    <label><input type="radio" name="motif" value="Échange de matériel"> Échange de matériel</label>
+    <label><input type="radio" name="motif" value="SAV / réparation"> SAV / réparation</label>
+    <label><input type="radio" name="motif" value="Décès"> Décès</label>
+    <label><input type="radio" name="motif" value="Changement de matériel"> Changement de matériel</label>
+    <label><input type="radio" name="motif" value="Matériel non adapté"> Matériel non adapté</label>
+    <label><input type="radio" name="motif" value="Autre"> Autre</label>
+  </div>
+  <input id="motifAutre" class="hidden" placeholder="Précisez le motif">
+</section>
+
+<section class="paper-card">
+  <div class="section-head">ÉTAT / OBSERVATIONS</div>
+  <label class="alert-check"><input id="anomalie" type="checkbox"> <strong>Anomalie ou dommage constaté lors de la reprise</strong></label>
+  <label>Observations<textarea id="observations" rows="5" placeholder="Accessoires repris, pièces manquantes, état du matériel, remarques…"></textarea></label>
+  <div id="photoArea" class="photo-area hidden">
+    <strong>Photos de l'anomalie</strong>
+    <span>Vous pouvez prendre plusieurs photos avec l'iPhone.</span>
+    <input id="photoInput" type="file" accept="image/*" capture="environment" multiple>
+    <div id="photoPreview"></div>
+  </div>
+</section>
+
+<section class="paper-card">
+  <div class="section-head">RÉCEPTION DE LA REPRISE</div>
+  <p class="receipt">Le matériel indiqué ci-dessus a été repris par EuroMed à la date indiquée sur le présent document.</p>
+  <div class="grid">
+    <label class="wide">Nom / prénom du technicien EuroMed<input id="technicien" placeholder="Nom et prénom"></label>
+  </div>
+</section>
+
+<section class="paper-card signatures">
+  <div class="section-head">SIGNATURES</div>
+  <div class="signature-grid">
+    <div>
+      <h3>Signature du patient / représentant</h3>
+      <canvas id="patientSignature"></canvas>
+      <button class="clear" data-target="patientSignature">Effacer</button>
+    </div>
+    <div>
+      <h3>Signature du technicien EuroMed</h3>
+      <canvas id="technicianSignature"></canvas>
+      <button class="clear" data-target="technicianSignature">Effacer</button>
+    </div>
+  </div>
+  <p class="legal">Je soussigné(e), reconnais avoir remis à EuroMed le matériel indiqué sur le présent bon de reprise.</p>
+</section>
+
+<section class="actions">
+  <button id="validateBtn" class="primary">✓ Valider la reprise</button>
+  <button id="resetBtn" class="secondary">Réinitialiser</button>
+  <span id="status"></span>
+</section>
+
+<footer>EuroMed · +33.327.64.34.99 · www.euromed-materiel-medical.com · 117 rue de Maubeuge F-59620 Aulnoye-Aymeries</footer>
+</main>
+
+<div id="resultModal" class="modal hidden">
+  <div class="modal-card">
+    <div class="ok">✓</div>
+    <h2>Reprise enregistrée</h2>
+    <p id="resultText"></p>
+    <button id="downloadBtn" class="primary">Télécharger le PDF</button>
+    <button id="sendBtn" class="secondary">Envoyer par e-mail</button>
+    <button id="closeModal" class="linkbtn">Fermer</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
