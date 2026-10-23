@@ -104,6 +104,7 @@ function sendEmail(){
  Object.entries(fields).forEach(([name,value])=>{const input=document.createElement("input");input.type="hidden";input.name=name;input.value=value;form.appendChild(input)});
  document.body.appendChild(form);
  try{form.submit();}catch(e){finishSend(false,"Impossible de contacter Google Apps Script.");return}
+ if(window.__euromedOfflineQueued){window.__euromedOfflineQueued=false;sendWaiting=false;btn.disabled=false;btn.textContent="📴 En attente";$("sendStatus").textContent="📴 Bon de reprise enregistré dans la file locale. Il sera proposé à l’envoi au retour du réseau. Vérifiez ensuite la réception du courriel avant de retirer la fiche de la file."; $("status").textContent="Bon de reprise conservé hors connexion.";form.remove();return;}
  form.remove();
  // Fallback : si le navigateur ne déclenche pas l’événement iframe, on considère l’envoi lancé après 8 s.
  setTimeout(()=>{if(sendWaiting)finishSend(true,"")},8000);
