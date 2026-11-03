@@ -1,10 +1,27 @@
 const $=id=>document.getElementById(id);
+
+function makeDocumentNumber(prefix){
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const date=pad(now.getDate())+'-'+pad(now.getMonth()+1)+'-'+now.getFullYear();
+  const time=pad(now.getHours())+pad(now.getMinutes())+pad(now.getSeconds());
+  const key='euromed-global-document-sequence-v1';
+  let seq=1;
+  try{seq=(Number(localStorage.getItem(key))||0)+1;localStorage.setItem(key,String(seq));}catch(e){}
+  let random='';
+  try{const bytes=new Uint8Array(4);crypto.getRandomValues(bytes);random=[...bytes].map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();}
+  catch(e){random=Math.random().toString(36).slice(2,10).toUpperCase();}
+  return {number:prefix+'/'+date+'/'+time+'/'+String(seq).padStart(4,'0')+'-'+random,dateISO:now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate()),createdAt:now.toISOString()};
+}
+
+let documentIdentity=null;
 let photos=[],generated={};
 
 document.addEventListener("DOMContentLoaded",()=>{
- const today=new Date().toISOString().slice(0,10);
- $("bonDate").value=today;
- $("bonNumber").value=makeNumber();
+ documentIdentity=makeDocumentNumber('BR');
+ $("bonDate").value=documentIdentity.dateISO;
+ $("bonNumber").value=documentIdentity.number;
+ $("todayDisplay").textContent=fmt(documentIdentity.dateISO)+' · N° '+documentIdentity.number;
  $("todayDisplay").textContent=fmt(today);
  addMaterial();
  $("addMaterial").onclick=addMaterial;
@@ -20,7 +37,6 @@ document.addEventListener("DOMContentLoaded",()=>{
  document.querySelectorAll(".clear").forEach(b=>b.onclick=()=>clearSig($(b.dataset.target)));
  setupSig($("patientSignature"));setupSig($("technicianSignature"));
 });
-function makeNumber(){return`BR-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`}
 function addMaterial(){
  const tr=document.createElement("tr");
  tr.innerHTML=`<td><input class="m-nameperson" placeholder="Nom"></td><td><input class="m-qty" type="number" min="1" value="1"></td><td><input class="m-product" placeholder="Matériel repris"></td><td><input class="m-serial" placeholder="N° série / lot"></td><td><select class="m-state"><option>Bon état</option><option>À contrôler</option><option>Endommagé</option><option>Incomplet</option></select></td><td><button type="button" class="remove">×</button></td>`;
@@ -43,7 +59,7 @@ function data(){
  const materials=[...$("materials").children].map(r=>({name:r.querySelector(".m-nameperson").value,qty:r.querySelector(".m-qty").value,product:r.querySelector(".m-product").value,serial:r.querySelector(".m-serial").value,state:r.querySelector(".m-state").value}));
  let motif=document.querySelector('input[name="motif"]:checked')?.value||"";
  if(motif==="Autre")motif=$("motifAutre").value;
- return {number:$("bonNumber").value,date:$("bonDate").value,patient:{nom:$("patientNom").value,prenom:$("patientPrenom").value,adresse:$("patientAdresse").value,etab:$("patientEtab").value,email:$("patientEmail").value},materials,motif,anomaly:$("anomalie").checked,observations:$("observations").value,technician:$("technicien").value,patientSig:$("patientSignature").toDataURL(),techSig:$("technicianSignature").toDataURL(),photos}}
+ return {number:$("bonNumber").value,createdAt:documentIdentity.createdAt,date:$("bonDate").value,documentsHandedOver:$("documentsHandedOver").checked,patient:{nom:$("patientNom").value,prenom:$("patientPrenom").value,adresse:$("patientAdresse").value,etab:$("patientEtab").value,email:$("patientEmail").value},materials,motif,anomaly:$("anomalie").checked,observations:$("observations").value,technician:$("technicien").value,patientSig:$("patientSignature").toDataURL(),techSig:$("technicianSignature").toDataURL(),photos}}
 function validate(){
  const d=data();
  if(!d.patient.nom&&!d.patient.prenom)return alert("Renseignez le nom ou le prénom du patient.");
@@ -70,8 +86,9 @@ async function buildPdf(d){
  if(d.photos.length){y=sec(pdf,"PHOTOS DE REPRISE",y,blue);for(const p of d.photos){if(y+56>278){pdf.addPage();y=15}pdf.addImage(p,"JPEG",M,y,72,50);y+=54}}
  if(y+70>278){pdf.addPage();y=15}y=sec(pdf,"RÉCEPTION DE LA REPRISE",y,blue);pdf.setFont("helvetica","normal");pdf.setFontSize(8);pdf.setTextColor(50);pdf.text("Le matériel indiqué ci-dessus a été repris par EuroMed à la date indiquée sur le présent document.",M,y+5);pdf.setFont("helvetica","bold");pdf.text(`Technicien EuroMed : ${d.technician}`,M,y+11);y+=16;
  y=sec(pdf,"SIGNATURES",y,blue);pdf.setFont("helvetica","normal");pdf.setFontSize(7);pdf.setTextColor(95);pdf.text("Je soussigné(e), reconnais avoir remis à EuroMed le matériel indiqué sur le présent bon de reprise.",M,y+5);y+=9;pdf.rect(M,y,88,48);pdf.rect(M+98,y,88,48);pdf.setFont("helvetica","bold");pdf.setTextColor(...blue);pdf.text("Signature du patient / représentant",M+2,y+6);pdf.text("Signature du technicien EuroMed",M+100,y+6);pdf.addImage(d.patientSig,"PNG",M+4,y+11,80,31);pdf.addImage(d.techSig,"PNG",M+102,y+11,80,31);
+ if(y+22>278){pdf.addPage();y=15}y=sec(pdf,"REMISE DES DOCUMENTS",y,blue);pdf.setFont("helvetica","normal");pdf.setFontSize(8);pdf.setTextColor(40);pdf.text(d.documentsHandedOver?"☑ Notices, papiers et protocoles remis en mains propres à la personne âgée ou à son représentant":"☐ Notices, papiers et protocoles non remis en mains propres",M,y+3,{maxWidth:W});y+=10;
  pdf.setFont("helvetica","normal");pdf.setFontSize(6.5);pdf.setTextColor(100);pdf.text("EuroMed · +33.327.64.34.99 · www.euromed-materiel-medical.com · 117 rue de Maubeuge F-59620 Aulnoye-Aymeries",M,291);
- const filename=`Bon-de-reprise_EUROMED_${(d.patient.nom||"Patient").replace(/[^a-z0-9]/gi,"-")}_${d.date.split("-").reverse().join("-")}.pdf`;
+ const filename=`Bon-de-reprise_EUROMED_${d.number.replace(/[^a-z0-9-]/gi,"_")}_${(d.patient.nom||"Patient").replace(/[^a-z0-9]/gi,"-")}.pdf`;
  return{blob:pdf.output("blob"),base64:pdf.output("datauristring").split(",")[1],filename,data:d}
 }
 function sec(pdf,t,y,c){pdf.setFillColor(...c);pdf.roundedRect(12,y,186,7,1.5,1.5,"F");pdf.setTextColor(255);pdf.setFont("helvetica","bold");pdf.setFontSize(7.5);pdf.text(t,15,y+4.8);return y+11}
