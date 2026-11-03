@@ -21,8 +21,8 @@ document.addEventListener("DOMContentLoaded",()=>{
  documentIdentity=makeDocumentNumber('BR');
  $("bonDate").value=documentIdentity.dateISO;
  $("bonNumber").value=documentIdentity.number;
- $("todayDisplay").textContent=fmt(documentIdentity.dateISO)+' · N° '+documentIdentity.number;
- $("todayDisplay").textContent=fmt(today);
+ $("todayDisplay").textContent=fmt(documentIdentity.dateISO);
+ $("documentNumber").textContent=documentIdentity.number;
  addMaterial();
  $("addMaterial").onclick=addMaterial;
  $("anomalie").onchange=e=>$("photoArea").classList.toggle("hidden",!e.target.checked);
@@ -86,7 +86,7 @@ async function buildPdf(d){
  if(d.photos.length){y=sec(pdf,"PHOTOS DE REPRISE",y,blue);for(const p of d.photos){if(y+56>278){pdf.addPage();y=15}pdf.addImage(p,"JPEG",M,y,72,50);y+=54}}
  if(y+70>278){pdf.addPage();y=15}y=sec(pdf,"RÉCEPTION DE LA REPRISE",y,blue);pdf.setFont("helvetica","normal");pdf.setFontSize(8);pdf.setTextColor(50);pdf.text("Le matériel indiqué ci-dessus a été repris par EuroMed à la date indiquée sur le présent document.",M,y+5);pdf.setFont("helvetica","bold");pdf.text(`Technicien EuroMed : ${d.technician}`,M,y+11);y+=16;
  y=sec(pdf,"SIGNATURES",y,blue);pdf.setFont("helvetica","normal");pdf.setFontSize(7);pdf.setTextColor(95);pdf.text("Je soussigné(e), reconnais avoir remis à EuroMed le matériel indiqué sur le présent bon de reprise.",M,y+5);y+=9;pdf.rect(M,y,88,48);pdf.rect(M+98,y,88,48);pdf.setFont("helvetica","bold");pdf.setTextColor(...blue);pdf.text("Signature du patient / représentant",M+2,y+6);pdf.text("Signature du technicien EuroMed",M+100,y+6);pdf.addImage(d.patientSig,"PNG",M+4,y+11,80,31);pdf.addImage(d.techSig,"PNG",M+102,y+11,80,31);
- if(y+22>278){pdf.addPage();y=15}y=sec(pdf,"REMISE DES DOCUMENTS",y,blue);pdf.setFont("helvetica","normal");pdf.setFontSize(8);pdf.setTextColor(40);pdf.text("REMIS EN MAINS PROPRES : "+(d.documentsHandedOver?"OUI":"NON"),M,y+3);pdf.setFont("helvetica","normal");pdf.text("Notices, papiers et protocoles remis à la personne âgée ou à son représentant.",M,y+8,{maxWidth:W});y+=14;
+ if(y+22>278){pdf.addPage();y=15}y=sec(pdf,"REMISE DES DOCUMENTS",y,blue);pdf.setFont("helvetica","normal");pdf.setFontSize(8);pdf.setTextColor(40);pdf.text("REMIS EN MAINS PROPRES : "+(d.documentsHandedOver?"OUI":"NON"),M,y+3);pdf.setFont("helvetica","normal");pdf.text("Notices, papiers et protocoles remis à la personne ou à son représentant.",M,y+8,{maxWidth:W});y+=14;
  pdf.setFont("helvetica","normal");pdf.setFontSize(6.5);pdf.setTextColor(100);pdf.text("EuroMed · +33.327.64.34.99 · www.euromed-materiel-medical.com · 117 rue de Maubeuge F-59620 Aulnoye-Aymeries",M,291);
  const filename=`Bon-de-reprise_EUROMED_${d.number.replace(/[^a-z0-9-]/gi,"_")}_${(d.patient.nom||"Patient").replace(/[^a-z0-9]/gi,"-")}.pdf`;
  return{blob:pdf.output("blob"),base64:pdf.output("datauristring").split(",")[1],filename,data:d}
